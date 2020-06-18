@@ -19,7 +19,7 @@ public class Main
 {
     static Morton64 morton64 = new Morton64(2, 32);
     static PointCloudRepository pointCloudRepository =  CassandraFactory.getPointCloudRepository();
-    static long regionId = 3L;
+    static long regionId = 1L;
 
     public static void main(String[] args) throws Exception
     {
@@ -77,45 +77,45 @@ public class Main
         try
         {
             long startTime = System.nanoTime();
+            FileWriter fileWriter = new FileWriter("E:\\PCL_CLASSIFIER\\bildstein_station3_xyz_intensity_rgb_verify\\cross_check\\new_method_region2.txt");
 
-            List<String> lines = new ArrayList<>();
+            //List<String> lines = new ArrayList<>();
             for (RegionPoint regionPoint : regionPoints)
             {
-                PointFeature pointFeature = findThePointsInBoxAndItsFeature(1000L, regionPoint, regionId);
-                String str = pointFeature.getIndex()
-                        +" "
+                //only consider non boundary points
+                if (regionPoint.getLabel() != 0 && regionPoint.getIsboundary() == 0)
+                {
+                    PointFeature pointFeature = findThePointsInBoxAndItsFeature(500L, regionPoint, regionId);
+                    String str = pointFeature.getIndex()
+                        + " "
                         + pointFeature.getCl()
-                        +" "
+                        + " "
                         + pointFeature.getCp()
-                        +" "
+                        + " "
                         + pointFeature.getCs()
-                        +" "
+                        + " "
                         + pointFeature.getAnisotropy()
-                        +" "
+                        + " "
                         + pointFeature.getChangeOfCurvature()
-                        +" "
+                        + " "
                         + pointFeature.getEigenentropy()
-                        +" "
+                        + " "
                         + pointFeature.getOmnivariance()
-                        +" "
+                        + " "
                         + regionPoint.getXo()
-                        +" "
+                        + " "
                         + regionPoint.getYo()
-                        +" "
+                        + " "
                         + regionPoint.getZo()
-                        +" "
+                        + " "
                         + regionPoint.getLabel();
-                lines.add(str);
+                    //lines.add(str);
+                    fileWriter.write(str + System.lineSeparator());
+                }
             }
 
             long elapsedTime = System.nanoTime() - startTime;
             System.out.println("Feature Generation took : " + elapsedTime/1000000);
-
-            FileWriter fileWriter = new FileWriter("/Users/rpncmac2/Study/Research/features/region_three.txt");
-            for (String line: lines)
-            {
-                fileWriter.write(line + System.lineSeparator());
-            }
 
             fileWriter.close();
             elapsedTime = System.nanoTime() - elapsedTime;

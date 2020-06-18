@@ -6,7 +6,7 @@ public class RegionPoint
     private long pointId;
     private long morton;
     private int label;
-
+    private int isboundary;
     private long x;
     private long y;
     private long z;
@@ -15,7 +15,7 @@ public class RegionPoint
     private float yo;
     private float zo;
 
-    public RegionPoint(long regionId, long pointId, long morton, long x, long y, long z, float xo, float yo, float zo, int label)
+    public RegionPoint(long regionId, long pointId, long morton, long x, long y, long z, float xo, float yo, float zo, int label, int isboundary)
     {
         this.regionId = regionId;
         this.pointId = pointId;
@@ -27,6 +27,7 @@ public class RegionPoint
         this.setZo(zo);
         this.morton = morton;
         this.label = label;
+        this.isboundary = isboundary;
     }
 
     public long getRegionId()
@@ -127,5 +128,15 @@ public class RegionPoint
     public void setLabel(int label)
     {
         this.label = label;
+    }
+
+    public int getIsboundary()
+    {
+        return isboundary;
+    }
+
+    public void setIsboundary(int isboundary)
+    {
+        this.isboundary = isboundary;
     }
 }

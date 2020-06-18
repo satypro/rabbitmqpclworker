@@ -10,7 +10,7 @@ import java.util.*;
 public class PointCloudRepository
 {
     private static final String TABLE_NAME = "pointcloudnormalizedoctree";
-    private static final String TABLE_NAME_2 = "pointcloudregions";
+    private static final String TABLE_NAME_2 = "pointcloudregionsimproved";
     private static final String TABLE_NAME_3 = "pointpartitionregions";
     private Session session;
 
@@ -51,7 +51,7 @@ public class PointCloudRepository
     public List<RegionPoint> getPointsByRegionId(long regionId)
     {
         StringBuilder sb = new StringBuilder("SELECT " +
-                "regionid, morton, pointid, x, y, z, xo, yo, zo, label " +
+                "regionid, morton, pointid, x, y, z, xo, yo, zo, label, isboundary " +
                 "FROM propelld.")
                 .append(TABLE_NAME_2)
                 .append(" WHERE regionid =")
@@ -65,8 +65,11 @@ public class PointCloudRepository
 
         for (Row r : rs)
         {
-            RegionPoint pointCloud = new
-                    RegionPoint(r.getLong("regionid"),
+            if (r.getInt("label") != 0)
+            {
+                RegionPoint pointCloud = new
+                    RegionPoint(
+                    r.getLong("regionid"),
                     r.getLong("pointid"),
                     r.getLong("morton"),
                     r.getLong("x"),
@@ -75,8 +78,11 @@ public class PointCloudRepository
                     r.getFloat("xo"),
                     r.getFloat("yo"),
                     r.getFloat("zo"),
-                    r.getInt("label"));
-            pointClouds.add(pointCloud);
+                    r.getInt("label"),
+                    r.getInt("isboundary")
+                );
+                pointClouds.add(pointCloud);
+            }
         }
 
         Collections.sort(pointClouds, new Comparator<RegionPoint>()
