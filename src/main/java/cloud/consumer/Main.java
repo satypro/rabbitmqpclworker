@@ -18,12 +18,29 @@ import java.util.*;
 public class Main
 {
     static Morton64 morton64 = new Morton64(2, 32);
-    static PointCloudRepository pointCloudRepository =  CassandraFactory.getPointCloudRepository();
+    static PointCloudRepository pointCloudRepository = CassandraFactory.getPointCloudRepository();
     static long regionId = 1L;
 
     public static void main(String[] args) throws Exception
     {
         LoadRegionPointsMorton(regionId);
+        //MortonTest();
+    }
+
+    public static void MortonTest()
+    {
+        // centered at 1000,1000
+        long mortonCodeLeftBottom = morton64.pack(500, 500);
+        long mortonCodeLeftTop = morton64.pack(500, 1500);
+        long mortoCodeRightBottom  = morton64.pack(1500, 500);
+        long mortoCodeRightTop  = morton64.pack(1500, 1500);
+        long mortonCodeOutSide = morton64.pack(400, 1600);
+
+        System.out.println(mortonCodeLeftBottom);
+        System.out.println(mortonCodeLeftTop);
+        System.out.println(mortoCodeRightBottom);
+        System.out.println(mortoCodeRightTop);
+        System.out.println(mortonCodeOutSide);
     }
 
     public Main() throws Exception
@@ -77,7 +94,7 @@ public class Main
         try
         {
             long startTime = System.nanoTime();
-            FileWriter fileWriter = new FileWriter("E:\\PCL_CLASSIFIER\\bildstein_station3_xyz_intensity_rgb_verify\\cross_check\\new_method_region2.txt");
+            FileWriter fileWriter = new FileWriter("E:\\PCL_CLASSIFIER\\bildstein_station1_xyz_intensity_rgb\\Regions2\\region1.txt");
 
             //List<String> lines = new ArrayList<>();
             for (RegionPoint regionPoint : regionPoints)
@@ -85,32 +102,35 @@ public class Main
                 //only consider non boundary points
                 if (regionPoint.getLabel() != 0 && regionPoint.getIsboundary() == 0)
                 {
-                    PointFeature pointFeature = findThePointsInBoxAndItsFeature(500L, regionPoint, regionId);
-                    String str = pointFeature.getIndex()
-                        + " "
-                        + pointFeature.getCl()
-                        + " "
-                        + pointFeature.getCp()
-                        + " "
-                        + pointFeature.getCs()
-                        + " "
-                        + pointFeature.getAnisotropy()
-                        + " "
-                        + pointFeature.getChangeOfCurvature()
-                        + " "
-                        + pointFeature.getEigenentropy()
-                        + " "
-                        + pointFeature.getOmnivariance()
-                        + " "
-                        + regionPoint.getXo()
-                        + " "
-                        + regionPoint.getYo()
-                        + " "
-                        + regionPoint.getZo()
-                        + " "
-                        + regionPoint.getLabel();
-                    //lines.add(str);
-                    fileWriter.write(str + System.lineSeparator());
+                    PointFeature pointFeature = findThePointsInBoxAndItsFeature2(500L, regionPoint, regionId);
+                    if (pointFeature != null)
+                    {
+                        String str = pointFeature.getIndex()
+                            + " "
+                            + pointFeature.getCl()
+                            + " "
+                            + pointFeature.getCp()
+                            + " "
+                            + pointFeature.getCs()
+                            + " "
+                            + pointFeature.getAnisotropy()
+                            + " "
+                            + pointFeature.getChangeOfCurvature()
+                            + " "
+                            + pointFeature.getEigenentropy()
+                            + " "
+                            + pointFeature.getOmnivariance()
+                            + " "
+                            + regionPoint.getXo()
+                            + " "
+                            + regionPoint.getYo()
+                            + " "
+                            + regionPoint.getZo()
+                            + " "
+                            + regionPoint.getLabel();
+                        //lines.add(str);
+                        fileWriter.write(str + System.lineSeparator());
+                    }
                 }
             }
 
@@ -240,6 +260,80 @@ public class Main
                 anisotropy,
                 eigenentropy,
                 changeOfCurvature
+        );
+    }
+
+    public static PointFeature findThePointsInBoxAndItsFeature2(long radius, RegionPoint regionPoint, long regionId)
+    {
+        List<RegionPoint> regionPoints = pointCloudRepository
+            .regionPointsStore
+            .get(regionId);
+
+        long startIndex_X =  regionPoint.getX() - radius;
+        long startIndex_Y =  regionPoint.getY() - radius;
+
+        long endIndex_X = regionPoint.getX() + radius;
+        long endIndex_Y = regionPoint.getY() + radius;
+
+        List<Point> points = new ArrayList<Point>();
+
+        for (RegionPoint rgp: regionPoints)
+        {
+            if ((rgp.getX() >= startIndex_X && rgp.getX() <= endIndex_X)
+                && (rgp.getY() >= startIndex_Y && rgp.getY() <= endIndex_Y))
+            {
+                points.add(new Point(rgp.getXo(),
+                                     rgp.getYo(),
+                                     rgp.getZo()));
+            }
+        }
+
+        // Now Save the Points into the Cassandra as the List of Points if we want
+        // Else let us calculate the cs, cl, cp values...
+
+        double[][] matrix = new double[points.size()][3];
+
+        if (points.size() < 5)
+        {
+            return null;
+        }
+
+        int matrixIdx = 0;
+        for(Point neighbour : points)
+        {
+            matrix[matrixIdx][0] = neighbour.getX();
+            matrix[matrixIdx][1] = neighbour.getY();
+            matrix[matrixIdx][2] = neighbour.getZ();
+            matrixIdx++;
+        }
+
+        RealMatrix cov = new Covariance(MatrixUtils.createRealMatrix(matrix))
+            .getCovarianceMatrix();
+
+        double[] eigenValues = new EigenDecomposition(cov)
+            .getRealEigenvalues();
+
+        //Features
+        double cl = (eigenValues[0] - eigenValues[1])/eigenValues[0];
+        double cp = (eigenValues[1] - eigenValues[2])/eigenValues[0];
+        double cs =  eigenValues[2]/eigenValues[0];
+        double omnivariance = Math.cbrt(eigenValues[0]* eigenValues[1] * eigenValues[2]);
+        double anisotropy = (eigenValues[0] - eigenValues[2])/eigenValues[0];
+        double eigenentropy = -1* (eigenValues[0]*Math.log(eigenValues[0])
+            + eigenValues[1]*Math.log(eigenValues[1])
+            + eigenValues[2]*Math.log(eigenValues[2]));
+        double changeOfCurvature = eigenValues[2]/(eigenValues[0] + eigenValues[1] + eigenValues[2]);
+
+        // lets build Feature and then return the feature
+        return new PointFeature(
+            regionPoint.getPointId(),
+            cl,
+            cp,
+            cs,
+            omnivariance,
+            anisotropy,
+            eigenentropy,
+            changeOfCurvature
         );
     }
 
