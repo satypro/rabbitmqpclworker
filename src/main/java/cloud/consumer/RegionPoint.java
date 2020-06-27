@@ -30,6 +30,18 @@ public class RegionPoint
         this.isboundary = isboundary;
     }
 
+    public RegionPoint(long x, long y, long z, float xo, float yo, float zo, int label, int isboundary)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.setXo(xo);
+        this.setYo(yo);
+        this.setZo(zo);
+        this.label = label;
+        this.isboundary = isboundary;
+    }
+
     public long getRegionId()
     {
         return regionId;

@@ -94,7 +94,7 @@ public class Main
         try
         {
             long startTime = System.nanoTime();
-            FileWriter fileWriter = new FileWriter("E:\\PCL_CLASSIFIER\\bildstein_station1_xyz_intensity_rgb\\Regions2\\region1.txt");
+            FileWriter fileWriter = new FileWriter("E:\\PCL_CLASSIFIER\\bildstein_station1_xyz_intensity_rgb\\Region3\\region5.txt");
 
             //List<String> lines = new ArrayList<>();
             for (RegionPoint regionPoint : regionPoints)
@@ -102,7 +102,7 @@ public class Main
                 //only consider non boundary points
                 if (regionPoint.getLabel() != 0 && regionPoint.getIsboundary() == 0)
                 {
-                    PointFeature pointFeature = findThePointsInBoxAndItsFeature2(500L, regionPoint, regionId);
+                    PointFeature pointFeature = findThePointsInBoxAndItsFeature2(200L, regionPoint, regionId);
                     if (pointFeature != null)
                     {
                         String str = pointFeature.getIndex()
@@ -271,16 +271,19 @@ public class Main
 
         long startIndex_X =  regionPoint.getX() - radius;
         long startIndex_Y =  regionPoint.getY() - radius;
+        long startIndex_Z =  regionPoint.getZ() - radius;
 
         long endIndex_X = regionPoint.getX() + radius;
         long endIndex_Y = regionPoint.getY() + radius;
+        long endIndex_Z = regionPoint.getZ() + radius;
 
         List<Point> points = new ArrayList<Point>();
 
         for (RegionPoint rgp: regionPoints)
         {
             if ((rgp.getX() >= startIndex_X && rgp.getX() <= endIndex_X)
-                && (rgp.getY() >= startIndex_Y && rgp.getY() <= endIndex_Y))
+                && (rgp.getY() >= startIndex_Y && rgp.getY() <= endIndex_Y)
+                && (rgp.getZ() >= startIndex_Z && rgp.getZ() <= endIndex_Z))
             {
                 points.add(new Point(rgp.getXo(),
                                      rgp.getYo(),
