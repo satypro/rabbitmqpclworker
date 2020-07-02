@@ -29,8 +29,12 @@ public class Dales
 
     public static void findMinMax()
     {
+        long startTime = System.nanoTime();
+        String inputFile = "/Users/rpncmac2/Downloads/dales_txt/train/5190/5190_54400.txt";
+        String outputFile = "/Users/rpncmac2/Downloads/dales_txt/train/5190/5190_54400_range.txt";
+
         File file =
-            new File("E:\\PCL_CLASSIFIER\\dales_data\\5150\\5150_54325.txt");
+                new File(inputFile);
         Scanner sc = null;
         try
         {
@@ -78,9 +82,10 @@ public class Dales
                 minX = x < minX ? x : minX;
                 minY = y < minY ? y : minY;
                 minZ = z < minZ ? z : minZ;
+                index++;
             }
         };
-
+        long stopTime = System.nanoTime();
         System.out.println("***************************");
         System.out.print("Max X : "+ maxX + " ");
         System.out.print("Max Y : "+ maxY + " ");
@@ -90,6 +95,30 @@ public class Dales
         System.out.print("Min Y : "+ minY + " ");
         System.out.print("Min Z : "+ minZ + " ");
         System.out.println("***************************");
+        String time = ((stopTime - startTime)/1000000000) + " Seconds";
+        try
+        {
+            FileWriter fileWriter = new FileWriter(outputFile);
+            String str =  "Max X : "+ maxX + System.lineSeparator()
+                    + "Max Y : "+ maxY + System.lineSeparator()
+                    + "Max Z : "+ maxZ + System.lineSeparator()
+                    + "Min X : "+ minX + System.lineSeparator()
+                    + "Min Y : "+ minY + System.lineSeparator()
+                    + "Min Z : "+ minZ + System.lineSeparator()
+                    + System.lineSeparator()
+                    + "Time Took To Process : "
+                    + time
+                    + System.lineSeparator()
+                    + "Total Points : "
+                    + index;
+
+            fileWriter.write(str);
+            fileWriter.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void NormalizePoints()
