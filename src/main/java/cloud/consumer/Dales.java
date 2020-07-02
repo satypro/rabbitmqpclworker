@@ -19,12 +19,12 @@ public class Dales
         //NormalizePoints();
         //SplitSpace();
 
-        String inputFileName = "E:\\PCL_CLASSIFIER\\dales_data\\5110\\Space_Partition\\xcom_part1.txt";
-        String outputFileName = "E:\\PCL_CLASSIFIER\\dales_data\\5110\\Space_Partition\\xcom_part1_500_part_optimal.csv";
-        long radius = 500L;
+        String inputFileName = "E:\\PCL_CLASSIFIER\\dales_data\\5150\\com_part5.txt";
+        String outputFileName = "E:\\PCL_CLASSIFIER\\dales_data\\5150\\acom_part5_optimal_avg.csv";
+        long radius = 300L;
         int startIndex = 0;
 
-        GenerateFeaturesOptimal(inputFileName, outputFileName, radius, startIndex);
+        GenerateFeaturesOptimalAvg(inputFileName, outputFileName, startIndex);
     }
 
     public static void findMinMax()
@@ -527,6 +527,213 @@ public class Dales
                     }
                     else
                     {
+                        writer.write(cl
+                                         + ","
+                                         + cp
+                                         + ","
+                                         + cs
+                                         + ","
+                                         + anisotropy
+                                         + ","
+                                         + changeOfCurvature
+                                         + ","
+                                         + eigenentropy
+                                         + ","
+                                         + omnivariance
+                                         + ","
+                                         + avgHeight
+                                         + ","
+                                         + regionPoint.getLabel()
+                                         + System.lineSeparator());
+                    }
+                }
+            }
+            writer.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void GenerateFeaturesOptimalAvg(String inputFileName, String outputFileName, int startIndex)
+    {
+        try
+        {
+            File file =
+                new File(inputFileName);
+            FileWriter writer =
+                new FileWriter(outputFileName);
+            Scanner sc = new Scanner(file);
+            List<RegionPoint> regionPoints = new ArrayList<>();
+            while (sc.hasNextLine())
+            {
+                String line = sc.nextLine();
+                String input[] = line.split(" ");
+                long xnorm = Long.parseLong(input[0]);
+                long ynorm = Long.parseLong(input[1]);
+                long znorm = Long.parseLong(input[2]);
+                float x = Float.parseFloat(input[3]);
+                float y = Float.parseFloat(input[4]);
+                float z = Float.parseFloat(input[5]);
+                int label = Integer.parseInt(input[6]);
+                int isBoundary = Integer.parseInt(input[7]);
+                if (label != 0)
+                    regionPoints
+                        .add(new RegionPoint(xnorm, ynorm, znorm, x, y, z, label, isBoundary));
+            }
+
+            Collections.sort(regionPoints, new Comparator<RegionPoint>()
+            {
+                @Override
+                public int compare(RegionPoint o1, RegionPoint o2)
+                {
+                    return (int) (o1.getX() - o2.getX());
+                }
+            });
+
+            writer.write("cl,cp,cs,anisotropy,changeOfCurvature,eigenentropy,omnivariance,height,label"+ System.lineSeparator());
+            for (int i = startIndex; i < regionPoints.size(); i++)
+            {
+                RegionPoint regionPoint = regionPoints.get(i);
+                if (regionPoint.getIsboundary() == 0)
+                {
+                    int index = Collections.binarySearch(regionPoints, regionPoint, new Comparator<RegionPoint>()
+                    {
+                        @Override
+                        public int compare(RegionPoint o1, RegionPoint o2)
+                        {
+                            return (int) (o1.getX() - o2.getX());
+                        }
+                    });
+
+                    //Features
+                    double cl = 0;
+                    double cp = 0;
+                    double cs = 0;
+                    double omnivariance = 0;
+                    double anisotropy = 0;
+                    double eigenentropy = 0;
+                    double changeOfCurvature = 0;
+                    float avgHeight =0;
+
+                    int[] radi = new int[3];
+                    radi[0] = 500;
+                    radi[1] = 300;
+                    radi[2] = 100;
+                    for(int j = 0; j < 3; j++)
+                    {
+                        long startIndex_X = regionPoint.getX() - radi[j];
+                        long startIndex_Y = regionPoint.getY() - radi[j];
+                        long startIndex_Z = regionPoint.getZ() - radi[j];
+
+                        long endIndex_X = regionPoint.getX() + radi[j];
+                        long endIndex_Y = regionPoint.getY() + radi[j];
+                        long endIndex_Z = regionPoint.getZ() + radi[j];
+
+                        List<Point> points = new ArrayList<Point>();
+                        // lets check the Start and Endpoint of the Point as we
+                        // Are searching for the Points
+                        int k = index;
+                        RegionPoint rgp = regionPoints.get(k);
+                        avgHeight = rgp.getZo();
+                        while (rgp.getX() <= endIndex_X && k < regionPoints.size())
+                        {
+                            if ((rgp.getX() >= startIndex_X && rgp.getX() <= endIndex_X)
+                                && (rgp.getY() >= startIndex_Y && rgp.getY() <= endIndex_Y)
+                                && (rgp.getZ() >= startIndex_Z && rgp.getZ() <= endIndex_Z))
+                            {
+                                points.add(new Point(
+                                    rgp.getXo(),
+                                    rgp.getYo(),
+                                    rgp.getZo()
+                                ));
+
+                                avgHeight += rgp.getZo();
+                            }
+                            k++;
+                            rgp = regionPoints.get(k);
+                        }
+
+                        k = index;
+                        rgp = regionPoints.get(k);
+                        while (rgp.getX() >= startIndex_X && k > 0)
+                        {
+                            if ((rgp.getX() >= startIndex_X && rgp.getX() <= endIndex_X)
+                                && (rgp.getY() >= startIndex_Y && rgp.getY() <= endIndex_Y)
+                                && (rgp.getZ() >= startIndex_Z && rgp.getZ() <= endIndex_Z))
+                            {
+                                points.add(new Point(
+                                    rgp.getXo(),
+                                    rgp.getYo(),
+                                    rgp.getZo()
+                                ));
+                                avgHeight += rgp.getZo();
+                            }
+                            k--;
+                            rgp = regionPoints.get(k);
+                        }
+
+                        avgHeight = avgHeight / points.size();
+                        // Now Save the Points into the Cassandra as the List of Points if we want
+                        // Else let us calculate the cs, cl, cp values...
+                        double[][] matrix = new double[points.size()][3];
+
+                        if (points.size() < 3)
+                        {
+                            continue;
+                        }
+
+                        int matrixIdx = 0;
+                        for (Point neighbour : points)
+                        {
+                            matrix[matrixIdx][0] = neighbour.getX();
+                            matrix[matrixIdx][1] = neighbour.getY();
+                            matrix[matrixIdx][2] = neighbour.getZ();
+                            matrixIdx++;
+                        }
+
+                        RealMatrix cov = new Covariance(MatrixUtils.createRealMatrix(matrix))
+                            .getCovarianceMatrix();
+
+                        double[] eigenValues = new EigenDecomposition(cov)
+                            .getRealEigenvalues();
+                        //Features
+                        cl += ((eigenValues[0] - eigenValues[1]) / eigenValues[0]);
+                        cp += ((eigenValues[1] - eigenValues[2]) / eigenValues[0]);
+                        cs += (eigenValues[2] / eigenValues[0]);
+                        omnivariance += Math.cbrt(eigenValues[0] * eigenValues[1] * eigenValues[2]);
+                        anisotropy += ((eigenValues[0] - eigenValues[2]) / eigenValues[0]);
+                        eigenentropy += (-1 * (eigenValues[0] * Math.log(eigenValues[0])
+                            + eigenValues[1] * Math.log(eigenValues[1])
+                            + eigenValues[2] * Math.log(eigenValues[2])));
+                        changeOfCurvature += (eigenValues[2] / (eigenValues[0] + eigenValues[1] + eigenValues[2]));
+                    }
+
+                    if (Double.isNaN(cl) ||
+                        Double.isNaN(cp) ||
+                        Double.isNaN(cs) ||
+                        Double.isNaN(omnivariance) ||
+                        Double.isNaN(anisotropy) ||
+                        Double.isNaN(eigenentropy) ||
+                        Double.isNaN(changeOfCurvature) ||
+                        cl == 0 ||
+                        cp == 0 ||
+                        cs == 0
+                      )
+                    {
+                    }
+                    else
+                    {
+                        cl = cl/3;
+                        cp = cp/3;
+                        cs = cs /3;
+                        anisotropy = anisotropy/3;
+                        changeOfCurvature = changeOfCurvature/3;
+                        eigenentropy = eigenentropy/3;
+                        omnivariance = omnivariance/3;
+                        avgHeight = avgHeight/3;
+
                         writer.write(cl
                                          + ","
                                          + cp
