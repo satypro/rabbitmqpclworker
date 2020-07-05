@@ -16,22 +16,26 @@ public class Dales
     public static void main(String[]args)
     {
         //findMinMax();
-        //NormalizePoints();
-        //SplitSpace();
+        // NormalizePointsv2();
+        // SplitSpacev2();
 
-        String inputFileName = "E:\\PCL_CLASSIFIER\\dales_data\\5150\\com_part5.txt";
-        String outputFileName = "E:\\PCL_CLASSIFIER\\dales_data\\5150\\acom_part5_optimal_avg.csv";
-        long radius = 300L;
+
+        String inputFileName = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_feat1.txt";
+        String outputFileName = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_feat1_fix.txt";
+
+        /*
         int startIndex = 0;
-
         GenerateFeaturesOptimalAvg(inputFileName, outputFileName, startIndex);
+         */
+
+        fixfile(inputFileName, outputFileName);
     }
 
     public static void findMinMax()
     {
         long startTime = System.nanoTime();
-        String inputFile = "/Users/rpncmac2/Downloads/dales_txt/train/5190/5190_54400.txt";
-        String outputFile = "/Users/rpncmac2/Downloads/dales_txt/train/5190/5190_54400_range.txt";
+        String inputFile = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325.txt";
+        String outputFile = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_range.txt";
 
         File file =
                 new File(inputFile);
@@ -124,9 +128,9 @@ public class Dales
     public static void NormalizePoints()
     {
         File file =
-            new File("E:\\PCL_CLASSIFIER\\dales_data\\5150\\5150_54325.txt");
+            new File("/Users/rpncmac2/Downloads/dales_txt/train/5080/5080_54435.txt");
         File file2 =
-            new File("E:\\PCL_CLASSIFIER\\dales_data\\5150\\5150_54325.labels");
+            new File("/Users/rpncmac2/Downloads/dales_txt/train/5080/5080_54435.labels");
         Scanner sc = null;
         Scanner sc2 = null;
         try
@@ -140,9 +144,9 @@ public class Dales
         }
 
         float p = 0.001f;
-        float xMin = 250.015f;
+        float xMin = 250.025f;
         float yMin = 250.02f;
-        float zMin = 29.325f;
+        float zMin = 24.19f;
         List<String> lines = new ArrayList<>();
         long index = 1;
         while (sc.hasNextLine() && sc2.hasNextLine())
@@ -180,6 +184,64 @@ public class Dales
         }
 
         System.out.println("DONE NORMALIZING POINTS");
+    }
+
+    public static void NormalizePointsv2()
+    {
+        try
+        {
+            long startTime = System.nanoTime();
+
+            File file =
+                    new File("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325.txt");
+            File file2 =
+                    new File("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325.labels");
+            FileWriter writer =
+                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_norm.txt");
+
+            Scanner sc = null;
+            Scanner sc2 = null;
+            try
+            {
+                sc = new Scanner(file);
+                sc2 = new Scanner(file2);
+            }
+            catch (FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            float xMin = 250.015f;
+            float yMin = 250.02f;
+            float zMin = 29.325f;
+            while (sc.hasNextLine() && sc2.hasNextLine())
+            {
+                String line = sc.nextLine();
+                String label = sc2.nextLine();
+                String input[] = line.split(" ");
+
+                float x = Float.parseFloat(input[0]);
+                float y = Float.parseFloat(input[1]);
+                float z = Float.parseFloat(input[2]);
+
+                float xNorm = ((x - xMin));
+                float yNorm = ((y - yMin));
+                float zNorm = ((z - zMin));
+                int l = Integer.parseInt(label);
+
+                String str = xNorm + " " + yNorm + " " + zNorm + " " + x + " " + y + " " + z + " " + l;
+                writer.write(str + System.lineSeparator());
+                writer.flush();
+            }
+
+            long stopTime = System.nanoTime();
+            String time = ((stopTime - startTime) / 1000000000) + " Seconds";
+            System.out.println("DONE NORMALIZING POINTS in : " + time);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     public static void SplitSpace()
@@ -278,6 +340,123 @@ public class Dales
             writer5.close();
         }
         catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void SplitSpacev2()
+    {
+        try
+        {
+            long startTime = System.nanoTime();
+            float maxDiameter = 60f;
+
+            float maxX = 500.03f;
+
+            int maxNumberOfPartition = (int)(maxX/maxDiameter);
+
+            int requiredPartition = 4;
+            if (requiredPartition > maxNumberOfPartition)
+            {
+                throw new Exception("Partiton cannot be done");
+            }
+
+            // Partition Range to Search
+
+            File file =
+                    new File("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_norm.txt");
+            FileWriter writer1 =
+                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part1.txt");
+            FileWriter writer2 =
+                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part2.txt");
+            FileWriter writer3 =
+                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part3.txt");
+            FileWriter writer4 =
+                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part4.txt");
+
+            Scanner sc = new Scanner(file);
+
+
+            while (sc.hasNextLine())
+            {
+                String line = sc.nextLine();
+                String input[] = line.split(" ");
+                if (input.length < 7)
+                {
+                    System.out.println(line);
+                }
+                float xnorm = Float.parseFloat(input[0]);
+                float ynorm = Float.parseFloat(input[1]);
+                float znorm = Float.parseFloat(input[2]);
+                float x = Float.parseFloat(input[3]);
+                float y = Float.parseFloat(input[4]);
+                float z = Float.parseFloat(input[5]);
+                int label = Integer.parseInt(input[6]);
+
+                float delta_x = 30L;
+                if (xnorm <= (120 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm > 120)
+                    {
+                        isBoundary = 1;
+                    }
+                    writer1
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    writer1.flush();
+                }
+
+                if (xnorm >= (120 - delta_x) &&  xnorm <= (240 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 120 || xnorm > 240)
+                    {
+                        isBoundary = 1;
+                    }
+                    writer2
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    writer2.flush();
+                }
+
+                if (xnorm >= (240 - delta_x) &&  xnorm <= (360 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 240 || xnorm > 360)
+                    {
+                        isBoundary = 1;
+                    }
+                    writer3
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    writer3.flush();
+                }
+
+                if (xnorm >= (360 - delta_x) &&  xnorm <= (501))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 360)
+                    {
+                        isBoundary = 1;
+                    }
+                    writer4
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    writer4.flush();
+                }
+            }
+            writer1.close();
+            writer2.close();
+            writer3.close();
+            writer4.close();
+
+            long stopTime = System.nanoTime();
+            String time = ((stopTime - startTime) / 1000000000) + " Seconds";
+            System.out.println("DONE SPACE SPLITTING in : " + time);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -594,14 +773,14 @@ public class Dales
             FileWriter writer =
                 new FileWriter(outputFileName);
             Scanner sc = new Scanner(file);
-            List<RegionPoint> regionPoints = new ArrayList<>();
+            List<RegionPointv2> regionPoints = new ArrayList<>();
             while (sc.hasNextLine())
             {
                 String line = sc.nextLine();
                 String input[] = line.split(" ");
-                long xnorm = Long.parseLong(input[0]);
-                long ynorm = Long.parseLong(input[1]);
-                long znorm = Long.parseLong(input[2]);
+                float xnorm = Float.parseFloat(input[0]);
+                float ynorm = Float.parseFloat(input[1]);
+                float znorm = Float.parseFloat(input[2]);
                 float x = Float.parseFloat(input[3]);
                 float y = Float.parseFloat(input[4]);
                 float z = Float.parseFloat(input[5]);
@@ -609,30 +788,46 @@ public class Dales
                 int isBoundary = Integer.parseInt(input[7]);
                 if (label != 0)
                     regionPoints
-                        .add(new RegionPoint(xnorm, ynorm, znorm, x, y, z, label, isBoundary));
+                        .add(new RegionPointv2(xnorm, ynorm, znorm, x, y, z, label, isBoundary));
             }
 
-            Collections.sort(regionPoints, new Comparator<RegionPoint>()
+            Collections.sort(regionPoints, new Comparator<RegionPointv2>()
             {
                 @Override
-                public int compare(RegionPoint o1, RegionPoint o2)
+                public int compare(RegionPointv2 o1, RegionPointv2 o2)
                 {
-                    return (int) (o1.getX() - o2.getX());
+                    if (o1.getX() > o2.getX())
+                        return 1;
+                    else
+                    {
+                        if (o1.getX() == o2.getX())
+                            return 0;
+                        else
+                            return -1;
+                    }
                 }
             });
 
-            writer.write("cl,cp,cs,anisotropy,changeOfCurvature,eigenentropy,omnivariance,height,label"+ System.lineSeparator());
+            writer.write("x,y,z,cl,cp,cs,anisotropy,changeOfCurvature,eigenentropy,omnivariance,height,label"+ System.lineSeparator());
             for (int i = startIndex; i < regionPoints.size(); i++)
             {
-                RegionPoint regionPoint = regionPoints.get(i);
+                RegionPointv2 regionPoint = regionPoints.get(i);
                 if (regionPoint.getIsboundary() == 0)
                 {
-                    int index = Collections.binarySearch(regionPoints, regionPoint, new Comparator<RegionPoint>()
+                    int index = Collections.binarySearch(regionPoints, regionPoint, new Comparator<RegionPointv2>()
                     {
                         @Override
-                        public int compare(RegionPoint o1, RegionPoint o2)
+                        public int compare(RegionPointv2 o1, RegionPointv2 o2)
                         {
-                            return (int) (o1.getX() - o2.getX());
+                            if (o1.getX() > o2.getX())
+                                return 1;
+                            else
+                            {
+                                if (o1.getX() == o2.getX())
+                                    return 0;
+                                else
+                                    return -1;
+                            }
                         }
                     });
 
@@ -646,25 +841,25 @@ public class Dales
                     double changeOfCurvature = 0;
                     float avgHeight =0;
 
-                    int[] radi = new int[3];
-                    radi[0] = 500;
-                    radi[1] = 300;
-                    radi[2] = 100;
-                    for(int j = 0; j < 3; j++)
+                    float[] radi = new float[3];
+                    radi[0] = 0.5f;
+                    radi[1] = 0.7f;
+                    radi[2] = 0.9f;
+                    for(int j = 0; j < radi.length; j++)
                     {
-                        long startIndex_X = regionPoint.getX() - radi[j];
-                        long startIndex_Y = regionPoint.getY() - radi[j];
-                        long startIndex_Z = regionPoint.getZ() - radi[j];
+                        float startIndex_X = regionPoint.getX() - radi[j];
+                        float startIndex_Y = regionPoint.getY() - radi[j];
+                        float startIndex_Z = regionPoint.getZ() - radi[j];
 
-                        long endIndex_X = regionPoint.getX() + radi[j];
-                        long endIndex_Y = regionPoint.getY() + radi[j];
-                        long endIndex_Z = regionPoint.getZ() + radi[j];
+                        float endIndex_X = regionPoint.getX() + radi[j];
+                        float endIndex_Y = regionPoint.getY() + radi[j];
+                        float endIndex_Z = regionPoint.getZ() + radi[j];
 
                         List<Point> points = new ArrayList<Point>();
                         // lets check the Start and Endpoint of the Point as we
                         // Are searching for the Points
                         int k = index;
-                        RegionPoint rgp = regionPoints.get(k);
+                        RegionPointv2 rgp = regionPoints.get(k);
                         avgHeight = rgp.getZo();
                         while (rgp.getX() <= endIndex_X && k < regionPoints.size())
                         {
@@ -703,7 +898,7 @@ public class Dales
                             rgp = regionPoints.get(k);
                         }
 
-                        avgHeight = avgHeight / points.size();
+                        avgHeight += avgHeight / points.size();
                         // Now Save the Points into the Cassandra as the List of Points if we want
                         // Else let us calculate the cs, cl, cp values...
                         double[][] matrix = new double[points.size()][3];
@@ -739,7 +934,7 @@ public class Dales
                         changeOfCurvature += (eigenValues[2] / (eigenValues[0] + eigenValues[1] + eigenValues[2]));
                     }
 
-                    if (Double.isNaN(cl) ||
+                    if (!(Double.isNaN(cl) ||
                         Double.isNaN(cp) ||
                         Double.isNaN(cs) ||
                         Double.isNaN(omnivariance) ||
@@ -748,11 +943,8 @@ public class Dales
                         Double.isNaN(changeOfCurvature) ||
                         cl == 0 ||
                         cp == 0 ||
-                        cs == 0
+                        cs == 0)
                       )
-                    {
-                    }
-                    else
                     {
                         cl = cl/3;
                         cp = cp/3;
@@ -763,26 +955,97 @@ public class Dales
                         omnivariance = omnivariance/3;
                         avgHeight = avgHeight/3;
 
-                        writer.write(cl
-                                         + ","
-                                         + cp
-                                         + ","
-                                         + cs
-                                         + ","
-                                         + anisotropy
-                                         + ","
-                                         + changeOfCurvature
-                                         + ","
-                                         + eigenentropy
-                                         + ","
-                                         + omnivariance
-                                         + ","
-                                         + avgHeight
-                                         + ","
-                                         + regionPoint.getLabel()
-                                         + System.lineSeparator());
+                        writer.write( regionPoint.getXo()
+                                + ","
+                                + regionPoint.getYo()
+                                + ","
+                                + regionPoint.getZo()
+                                + ","
+                                + cl
+                                + ","
+                                + cp
+                                + ","
+                                + cs
+                                + ","
+                                + anisotropy
+                                + ","
+                                + changeOfCurvature
+                                + ","
+                                + eigenentropy
+                                + ","
+                                + omnivariance
+                                + ","
+                                + avgHeight
+                                + ","
+                                + regionPoint.getLabel()
+                                + System.lineSeparator());
                     }
                 }
+            }
+            writer.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void fixfile(String inputFileName, String outputFileName)
+    {
+        try
+        {
+            File file =
+                    new File(inputFileName);
+            FileWriter writer =
+                    new FileWriter(outputFileName);
+            Scanner sc = new Scanner(file);
+
+            String line = sc.nextLine();
+            writer.write("x,y,z,cl,cp,cs,anisotropy,changeOfCurvature,eigenentropy,omnivariance,height,label"+ System.lineSeparator());
+            while (sc.hasNextLine())
+            {
+                line = sc.nextLine();
+                String input[] = line.split(",");
+                String stt[] = input[0].split(" ");
+                float x = Float.parseFloat(stt[0]);
+                float y = Float.parseFloat(stt[1]);
+                float z = Float.parseFloat(stt[2]);
+                float cl = Float.parseFloat(stt[3]);
+
+                float cp = Float.parseFloat(input[1]);
+                float cs = Float.parseFloat(input[2]);
+                float anisotropy = Float.parseFloat(input[3]);
+                float changeOfCurvature = Float.parseFloat(input[4]);
+                float eigenentropy = Float.parseFloat(input[5]);
+                float omnivariance = Float.parseFloat(input[6]);
+                float avgHeight = Float.parseFloat(input[7]);
+                int label = Integer.parseInt(input[8]);
+
+                writer.write( x
+                        + ","
+                        + y
+                        + ","
+                        + z
+                        + ","
+                        + cl
+                        + ","
+                        + cp
+                        + ","
+                        + cs
+                        + ","
+                        + anisotropy
+                        + ","
+                        + changeOfCurvature
+                        + ","
+                        + eigenentropy
+                        + ","
+                        + omnivariance
+                        + ","
+                        + avgHeight
+                        + ","
+                        + label
+                        + System.lineSeparator());
+                writer.flush();
             }
             writer.close();
         }
