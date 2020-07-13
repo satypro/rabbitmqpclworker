@@ -10,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Dales
 {
@@ -17,18 +19,56 @@ public class Dales
     {
         //findMinMax();
         // NormalizePointsv2();
-        // SplitSpacev2();
+        //SplitSpacev2();
 
+        String folderName = "5080";
+        String fileName = "5080_54435";
+        ExecutorService executor= Executors
+                .newFixedThreadPool(15);
 
-        String inputFileName = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_feat1.txt";
-        String outputFileName = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_feat1_fix.txt";
+        for (int i = 1; i <= 10; i++)
+        {
+            try
+            {
+                String inputFileName = "/Users/rpncmac2/Downloads/dales_txt/train/"
+                        +folderName+"/parts/"
+                        + fileName+ "_part"
+                        + Integer.toString(i)
+                        +".txt";
+
+                String outputFileName = "/Users/rpncmac2/Downloads/dales_txt/train/"
+                        +folderName+"/feat/"
+                        + fileName + "_feat"
+                        + Integer.toString(i)
+                        + ".txt";
+
+                executor
+                        .execute(new FeatureThread(inputFileName, outputFileName, 0));
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+        executor.shutdown();
 
         /*
-        int startIndex = 0;
-        GenerateFeaturesOptimalAvg(inputFileName, outputFileName, startIndex);
-         */
+        for (int i = 1; i <= 10 ; i++)
+        {
+            String inputFileName = "/Users/rpncmac2/Downloads/dales_txt/train/"
+                    +folderName+"/parts/"
+                    + fileName+ "_part"
+                    + Integer.toString(i)
+                    +".txt";
 
-        fixfile(inputFileName, outputFileName);
+            String outputFileName = "/Users/rpncmac2/Downloads/dales_txt/train/"
+                    +folderName+"/feat/"
+                    + fileName + "_feat"
+                    + Integer.toString(i)
+                    + ".txt";
+            GenerateFeaturesOptimalAvg(inputFileName, outputFileName, 0);
+        }
+        */
     }
 
     public static void findMinMax()
@@ -350,30 +390,39 @@ public class Dales
         try
         {
             long startTime = System.nanoTime();
-            float maxDiameter = 60f;
+            float maxDiameter = 10f;
 
             float maxX = 500.03f;
 
             int maxNumberOfPartition = (int)(maxX/maxDiameter);
 
-            int requiredPartition = 4;
+            int requiredPartition = 10;
             if (requiredPartition > maxNumberOfPartition)
             {
                 throw new Exception("Partiton cannot be done");
             }
 
-            // Partition Range to Search
+            FileWriter [] fileWriters = new FileWriter[10];
+            String folderName = "";
+            String fileName = "";
 
             File file =
-                    new File("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_norm.txt");
-            FileWriter writer1 =
-                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part1.txt");
-            FileWriter writer2 =
-                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part2.txt");
-            FileWriter writer3 =
-                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part3.txt");
-            FileWriter writer4 =
-                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_part4.txt");
+                    new File("/Users/rpncmac2/Downloads/dales_txt/train/"
+                            +folderName
+                            +"/"
+                            +fileName
+                            +"_norm.txt");
+
+            for (int i = 1; i <=10 ; i++)
+            {
+                FileWriter writer =
+                        new FileWriter("/Users/rpncmac2/Downloads/dales_txt/train/"
+                                + folderName
+                                + "/parts/"
+                                + fileName
+                                + "_part1.txt");
+                fileWriters[i-1] = writer;
+            }
 
             Scanner sc = new Scanner(file);
 
@@ -394,59 +443,254 @@ public class Dales
                 float z = Float.parseFloat(input[5]);
                 int label = Integer.parseInt(input[6]);
 
-                float delta_x = 30L;
-                if (xnorm <= (120 + delta_x))
+                float delta_x = 10L;
+
+                if (xnorm <= (50 + delta_x))
                 {
                     int isBoundary = 0;
-                    if (xnorm > 120)
+                    if (xnorm > 50)
                     {
                         isBoundary = 1;
                     }
-                    writer1
+                    fileWriters[0]
                             .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
-                    writer1.flush();
+                    fileWriters[0].flush();
                 }
 
-                if (xnorm >= (120 - delta_x) &&  xnorm <= (240 + delta_x))
+                if (xnorm >= (50 - delta_x) &&  xnorm <= (10 + delta_x))
                 {
                     int isBoundary = 0;
-                    if (xnorm < 120 || xnorm > 240)
+                    if (xnorm < 50 || xnorm > 100)
                     {
                         isBoundary = 1;
                     }
-                    writer2
+                    fileWriters[1]
                             .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
-                    writer2.flush();
+                    fileWriters[1].flush();
                 }
 
-                if (xnorm >= (240 - delta_x) &&  xnorm <= (360 + delta_x))
+                if (xnorm >= (100 - delta_x) &&  xnorm <= (150 + delta_x))
                 {
                     int isBoundary = 0;
-                    if (xnorm < 240 || xnorm > 360)
+                    if (xnorm < 100 || xnorm > 150)
                     {
                         isBoundary = 1;
                     }
-                    writer3
+                    fileWriters[2]
                             .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
-                    writer3.flush();
+                    fileWriters[2].flush();
                 }
 
-                if (xnorm >= (360 - delta_x) &&  xnorm <= (501))
+
+                if (xnorm >= (150 - delta_x) &&  xnorm <= (200 + delta_x))
                 {
                     int isBoundary = 0;
-                    if (xnorm < 360)
+                    if (xnorm < 150 || xnorm > 200)
                     {
                         isBoundary = 1;
                     }
-                    writer4
+                    fileWriters[3]
                             .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
-                    writer4.flush();
+                    fileWriters[3].flush();
+                }
+
+
+                if (xnorm >= (200 - delta_x) &&  xnorm <= (250 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 200 || xnorm > 250)
+                    {
+                        isBoundary = 1;
+                    }
+                    fileWriters[4]
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    fileWriters[4].flush();
+                }
+
+
+                if (xnorm >= (250 - delta_x) &&  xnorm <= (300 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 250 || xnorm > 300)
+                    {
+                        isBoundary = 1;
+                    }
+                    fileWriters[5]
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    fileWriters[5].flush();
+                }
+
+                if (xnorm >= (300 - delta_x) &&  xnorm <= (350 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 300 || xnorm > 350)
+                    {
+                        isBoundary = 1;
+                    }
+                    fileWriters[6]
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    fileWriters[6].flush();
+                }
+
+                if (xnorm >= (350 - delta_x) &&  xnorm <= (400 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 350 || xnorm > 400)
+                    {
+                        isBoundary = 1;
+                    }
+                    fileWriters[7]
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    fileWriters[7].flush();
+                }
+
+                if (xnorm >= (400 - delta_x) &&  xnorm <= (450 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 400 || xnorm > 450)
+                    {
+                        isBoundary = 1;
+                    }
+                    fileWriters[8]
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    fileWriters[8].flush();
+                }
+
+                if (xnorm >= (450 - delta_x) &&  xnorm <= (501 + delta_x))
+                {
+                    int isBoundary = 0;
+                    if (xnorm < 450 || xnorm > 501)
+                    {
+                        isBoundary = 1;
+                    }
+                    fileWriters[9]
+                            .write(xnorm+" "+ynorm+" "+znorm+" "+x+" "+y+" "+z+" "+label+" "+isBoundary+ System.lineSeparator());
+                    fileWriters[9].flush();
                 }
             }
-            writer1.close();
-            writer2.close();
-            writer3.close();
-            writer4.close();
+
+            for(int i = 0; i < 10; i++)
+            {
+                fileWriters[i].close();
+            }
+
+            long stopTime = System.nanoTime();
+            String time = ((stopTime - startTime) / 1000000000) + " Seconds";
+            System.out.println("DONE SPACE SPLITTING in : " + time);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void SplitSpacev3()
+    {
+        try
+        {
+            long startTime = System.nanoTime();
+            float maxDiameter = 10f;
+
+            float maxX = 500.03f;
+
+            int maxNumberOfPartition = (int)(maxX/maxDiameter);
+
+            int requiredPartition = 10;
+            if (requiredPartition > maxNumberOfPartition)
+            {
+                throw new Exception("Partiton cannot be done");
+            }
+
+            float delta_x = 10L;
+            float partitionSize = 50L;
+
+            // Partition Range to Search
+            FileWriter [] fileWriters = new FileWriter[10];
+            String folderName = "";
+            String fileName = "";
+
+            File file =
+                    new File("/Users/rpncmac2/Downloads/dales_txt/train/"
+                            +folderName
+                            +"/"
+                            +fileName
+                            +"_norm.txt");
+
+            for (int i = 1; i <= requiredPartition ; i++)
+            {
+                FileWriter writer =
+                        new FileWriter("/Users/rpncmac2/Downloads/dales_txt/train/"
+                                + folderName
+                                + "/parts/"
+                                + fileName
+                                + "_part1.txt");
+                fileWriters[i-1] = writer;
+            }
+
+            Scanner sc = new Scanner(file);
+
+            while (sc.hasNextLine())
+            {
+                String line = sc.nextLine();
+                String input[] = line.split(" ");
+                if (input.length < 7)
+                {
+                    System.out.println(line);
+                }
+                float xnorm = Float.parseFloat(input[0]);
+                float ynorm = Float.parseFloat(input[1]);
+                float znorm = Float.parseFloat(input[2]);
+                float x = Float.parseFloat(input[3]);
+                float y = Float.parseFloat(input[4]);
+                float z = Float.parseFloat(input[5]);
+                int label = Integer.parseInt(input[6]);
+
+                for (int i = 1; i <= requiredPartition; i++)
+                {
+                    float check1 = ((partitionSize * (i - 1)) - delta_x);
+                    float check2 = ((partitionSize * i) + delta_x);
+                    float boundaryCheck1 = partitionSize * (i - 1);
+                    float boundaryCheck2 = partitionSize * i;
+
+                    if (i == 1)
+                    {
+                        if (xnorm <= check2)
+                        {
+                            int isBoundary = 0;
+                            if (xnorm > boundaryCheck2)
+                            {
+                                isBoundary = 1;
+                            }
+                            fileWriters[i - 1]
+                                    .write(xnorm + " " + ynorm + " " + znorm + " " + x + " " + y + " " + z + " " + label + " " + isBoundary + System.lineSeparator());
+                            fileWriters[i - 1].flush();
+                        }
+                    }
+                    else
+                    {
+                        if (xnorm >= check1 && xnorm <= check2)
+                        {
+                            int isBoundary = 0;
+                            if (xnorm < boundaryCheck1 || xnorm > boundaryCheck2)
+                            {
+                                isBoundary = 1;
+                            }
+                            fileWriters[i - 1]
+                                    .write(xnorm + " " + ynorm + " " + znorm + " " + x + " " + y + " " + z + " " + label + " " + isBoundary + System.lineSeparator());
+                            fileWriters[i - 1].flush();
+                        }
+                    }
+                }
+            }
+
+            for(int i = 0; i < requiredPartition; i++)
+            {
+                fileWriters[i].close();
+            }
 
             long stopTime = System.nanoTime();
             String time = ((stopTime - startTime) / 1000000000) + " Seconds";
