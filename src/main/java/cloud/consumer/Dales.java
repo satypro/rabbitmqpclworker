@@ -457,7 +457,7 @@ public class Dales
                     fileWriters[0].flush();
                 }
 
-                if (xnorm >= (50 - delta_x) &&  xnorm <= (10 + delta_x))
+                if (xnorm >= (50 - delta_x) &&  xnorm <= (100 + delta_x))
                 {
                     int isBoundary = 0;
                     if (xnorm < 50 || xnorm > 100)
@@ -605,7 +605,7 @@ public class Dales
                 throw new Exception("Partiton cannot be done");
             }
 
-            float delta_x = 10L;
+            float delta_x = maxDiameter;
             float partitionSize = 50L;
 
             // Partition Range to Search
