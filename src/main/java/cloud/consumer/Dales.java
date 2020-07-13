@@ -672,6 +672,11 @@ public class Dales
                     }
                     else
                     {
+                        if (i == requiredPartition)
+                        {
+                            boundaryCheck2 += 2;
+                        }
+
                         if (xnorm >= check1 && xnorm <= check2)
                         {
                             int isBoundary = 0;
