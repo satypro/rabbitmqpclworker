@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 public class Dales
 {
-    public static void main(String[]args)
+    public static void main2(String[]args)
     {
         //RemoveBoundary();
         //findMinMax();
@@ -23,25 +23,27 @@ public class Dales
         SplitSpacev3();
     }
 
-    public static void main2(String[]args)
+    public static void main(String[]args)
     {
-        String folderName = "5080";
-        String fileName = "5080_54400";
+        String folderName = "5110";
+        String fileName = "5110_54320";
         ExecutorService executor= Executors
                 .newFixedThreadPool(10);
         for (int i = 1; i <= 10; i++)
         {
             try
             {
-                String inputFileName = "/home/ubuntu/"
+                ///home/ubuntu/output/5110/parts
+
+                String inputFileName = "/home/ubuntu/output/"
                         +folderName
-                        +"\\parts\\"
+                        +"/parts/"
                         + fileName+ "_part"
                         + Integer.toString(i)
                         +".txt";
-                String outputFileName = "E:\\PCL_CLASSIFIER\\"
+                String outputFileName = "/home/ubuntu/output/"
                         +folderName
-                        +"\\feats3\\"
+                        +"/feats/"
                         + fileName + "_feat_opt_sec"
                         + Integer.toString(i)
                         + ".txt";
