@@ -16,7 +16,7 @@ public class PartitionTilesFeaturesIntoGrid
 {
     float []xRange = new float[]
     {
-        250.015f,
+        250.000f,
         275.015f,
         300.015f,
         325.015f,
@@ -36,12 +36,12 @@ public class PartitionTilesFeaturesIntoGrid
         675.015f,
         700.015f,
         725.015f,
-        750.046f,
+        751.000f,
     };
 
     float []yRange = new float[]
     {
-        250.015f,
+        250.000f,
         275.015f,
         300.015f,
         325.015f,
@@ -61,7 +61,7 @@ public class PartitionTilesFeaturesIntoGrid
         675.015f,
         700.015f,
         725.015f,
-        750.046f,
+        751.000f,
     };
 
     public void partitionFeatureSet(String inputFileName, String outputFileLocation)
