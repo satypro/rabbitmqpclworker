@@ -17,8 +17,10 @@ public class Dales
     {
         //RemoveBoundary();
         //findMinMax();
-        PartitionTilesFeaturesIntoGrid obj = new PartitionTilesFeaturesIntoGrid();
-        obj.partitionFeatureSet("","");
+        //PartitionTilesFeaturesIntoGrid obj = new PartitionTilesFeaturesIntoGrid();
+        //obj.partitionFeatureSet("","");
+        //NormalizePoint();
+        SplitSpacev3();
     }
 
     public static void main2(String[]args)
@@ -31,7 +33,7 @@ public class Dales
         {
             try
             {
-                String inputFileName = "E:\\PCL_CLASSIFIER\\"
+                String inputFileName = "/home/ubuntu/"
                         +folderName
                         +"\\parts\\"
                         + fileName+ "_part"
@@ -168,16 +170,18 @@ public class Dales
 
     public static void NormalizePoint()
     {
+        String line = "";
+        int count = 0;
         try
         {
             long startTime = System.nanoTime();
 
             File file =
-                    new File("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325.txt");
+                    new File("/home/ubuntu/5110/5110_54320.txt");
             File file2 =
-                    new File("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325.labels");
+                    new File("/home/ubuntu/5110/5110_54320.labels");
             FileWriter writer =
-                    new FileWriter("/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_norm.txt");
+                    new FileWriter("/home/ubuntu/5110/5110_54320_norm.txt");
 
             Scanner sc = null;
             Scanner sc2 = null;
@@ -191,17 +195,22 @@ public class Dales
                 e.printStackTrace();
             }
 
-            float xMin = 250.015f;
-            float yMin = 250.02f;
-            float zMin = 29.325f;
+            float xMin = 250.005f;
+            float yMin = 250.015f;
+            float zMin = 43.93f;
             while (sc.hasNextLine() && sc2.hasNextLine())
             {
-                String line = sc.nextLine();
+                line = sc.nextLine();
+                count++;
                 String label = sc2.nextLine();
+
                 String input[] = line.split(" ");
+
+                if (input.length < 3) continue;
 
                 float x = Float.parseFloat(input[0]);
                 float y = Float.parseFloat(input[1]);
+
                 float z = Float.parseFloat(input[2]);
 
                 float xNorm = ((x - xMin));
@@ -220,6 +229,7 @@ public class Dales
         }
         catch (Exception ex)
         {
+           System.out.println("LINE : "+  line +"  Count :"+ count);
             ex.printStackTrace();
         }
     }
@@ -231,7 +241,7 @@ public class Dales
             long startTime = System.nanoTime();
             float maxDiameter = 10f;
 
-            float maxX = 500.03f;
+            float maxX = 500.01f;
 
             int maxNumberOfPartition = (int)(maxX/maxDiameter);
 
@@ -242,11 +252,11 @@ public class Dales
             }
 
             FileWriter [] fileWriters = new FileWriter[10];
-            String folderName = "";
-            String fileName = "";
+            String folderName = "5110";
+            String fileName = "5110_54320";
 
             File file =
-                    new File("/Users/rpncmac2/Downloads/dales_txt/train/"
+                    new File("/home/ubuntu/"
                             +folderName
                             +"/"
                             +fileName
@@ -255,11 +265,13 @@ public class Dales
             for (int i = 1; i <=10 ; i++)
             {
                 FileWriter writer =
-                        new FileWriter("/Users/rpncmac2/Downloads/dales_txt/train/"
+                        new FileWriter("/home/ubuntu/output/"
                                 + folderName
                                 + "/parts/"
                                 + fileName
-                                + "_part1.txt");
+                                + "_part"
+                                +String.valueOf(i)
+                                +".txt");
                 fileWriters[i-1] = writer;
             }
 
@@ -450,23 +462,25 @@ public class Dales
             // Partition Range to Search
             FileWriter [] fileWriters = new FileWriter[10];
             String folderName = "5110";
-            String fileName = "5110_54495";
+            String fileName = "5110_54320";
 
             File file =
-                    new File("E:\\PCL_CLASSIFIER\\"
+                    new File("/home/ubuntu/"
                             +folderName
-                            +"\\"
+                            +"/"
                             +fileName
                             +"_norm.txt");
 
             for (int i = 1; i <= requiredPartition ; i++)
             {
                 FileWriter writer =
-                        new FileWriter("E:\\PCL_CLASSIFIER\\"
+                        new FileWriter("/home/ubuntu/output/"
                                 + folderName
-                                + "\\parts\\"
+                                + "/parts/"
                                 + fileName
-                                + "_part"+Integer.toString(i)+".txt");
+                                + "_part"
+                                + Integer.toString(i)
+                                + ".txt");
                 fileWriters[i-1] = writer;
             }
 

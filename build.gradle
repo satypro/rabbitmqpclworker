@@ -11,6 +11,14 @@ repositories {
     mavenCentral()
 }
 
+task dales(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'cloud.consumer.Dales'
+
+  args '-c', 'FrontPage?suite&format=text'
+}
+
 dependencies {
     compile group: 'com.datastax.cassandra', name: 'cassandra-driver-core', version: '3.8.0'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
