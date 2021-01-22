@@ -1,10 +1,8 @@
 package cloud.consumer;
-
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.Covariance;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -17,10 +15,18 @@ public class Dales
 {
     public static void main(String[]args)
     {
-        String folderName = "5110";
-        String fileName = "5110_54320";
+        //RemoveBoundary();
+        //findMinMax();
+        PartitionTilesFeaturesIntoGrid obj = new PartitionTilesFeaturesIntoGrid();
+        obj.partitionFeatureSet("","");
+    }
+
+    public static void main2(String[]args)
+    {
+        String folderName = "5080";
+        String fileName = "5080_54400";
         ExecutorService executor= Executors
-                .newFixedThreadPool(15);
+                .newFixedThreadPool(10);
         for (int i = 1; i <= 10; i++)
         {
             try
@@ -33,8 +39,8 @@ public class Dales
                         +".txt";
                 String outputFileName = "E:\\PCL_CLASSIFIER\\"
                         +folderName
-                        +"\\feats\\"
-                        + fileName + "_feat_optimal"
+                        +"\\feats3\\"
+                        + fileName + "_feat_opt_sec"
                         + Integer.toString(i)
                         + ".txt";
                 executor
@@ -69,8 +75,8 @@ public class Dales
     public static void findMinMax()
     {
         long startTime = System.nanoTime();
-        String inputFile = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325.txt";
-        String outputFile = "/Users/rpncmac2/Downloads/dales_txt/test/5150/5150_54325_range.txt";
+        String inputFile = "E:\\PCL_CLASSIFIER\\dales_semantic_segmentation_txt\\dales_txt\\test\\5080_54400.txt";
+        String outputFile = "E:\\PCL_CLASSIFIER\\dales_semantic_segmentation_txt\\dales_txt\\test\\5080_54400_range.txt";
 
         File file =
                 new File(inputFile);
@@ -539,6 +545,99 @@ public class Dales
             e.printStackTrace();
         }
         catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void RemoveBoundary()
+    {
+        String fileName = "E:\\PCL_CLASSIFIER\\Profex\\feat5080\\5080_54470_feat_sec4.txt";
+        String outputFileName = "E:\\PCL_CLASSIFIER\\Profex\\feat5080\\5080_54470_feat_sec4_wb.txt";
+        File file =
+            new File(fileName);
+
+        Scanner sc = null;
+        try
+        {
+            sc = new Scanner(file);
+            FileWriter writer =
+                new FileWriter(outputFileName);
+            writer.write("x,y,z,cl,cp,cs,anisotropy,changeOfCurvature," +
+                             "eigenentropy,omnivariance,sumOfEigenValues," +
+                             "optimalRadius,hdiff,hsd,density,label"+
+                             System.lineSeparator());
+            sc.nextLine();
+            while (sc.hasNextLine())
+            {
+                String line = sc.nextLine();
+                String input[] = line.split(",");
+
+                float x = Float.parseFloat(input[0]);
+                float y = Float.parseFloat(input[1]);
+                float z = Float.parseFloat(input[2]);
+                float cl = Float.parseFloat(input[3]);
+                float cp = Float.parseFloat(input[4]);
+                float cs = Float.parseFloat(input[5]);
+                float anisotropy = Float.parseFloat(input[6]);
+                float changeOfCurvature = Float.parseFloat(input[7]);
+                float eigenentropy = Float.parseFloat(input[8]);
+                float omnivariance = Float.parseFloat(input[9]);
+                float sumOfEigenValues = Float.parseFloat(input[10]);
+                float optimalRadius = Float.parseFloat(input[11]);
+                float hdiff = Float.parseFloat(input[12]);
+                float hsd = Float.parseFloat(input[13]);
+                float density = Float.parseFloat(input[14]);
+                int label = Integer.parseInt(input[15]);
+                // it is inside boundary
+                if ((Math.abs(500.04 - x) <= 2.0) || (Math.abs(500.03 - y) <= 2.0))
+                {
+
+                }
+                else
+                {
+                    writer.write( x
+                                      + ","
+                                      + y
+                                      + ","
+                                      + z
+                                      + ","
+                                      + cl
+                                      + ","
+                                      + cp
+                                      + ","
+                                      + cs
+                                      + ","
+                                      + anisotropy
+                                      + ","
+                                      + changeOfCurvature
+                                      + ","
+                                      + eigenentropy
+                                      + ","
+                                      + omnivariance
+                                      + ","
+                                      + sumOfEigenValues
+                                      + ","
+                                      + optimalRadius
+                                      + ","
+                                      + hdiff
+                                      + ","
+                                      + hsd
+                                      + ","
+                                      + density
+                                      + ","
+                                      + label
+                                      + System.lineSeparator());
+
+                    writer.flush();
+                }
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
