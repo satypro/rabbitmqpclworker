@@ -25,6 +25,8 @@ public class Dales
 
     public static void main2(String[]args)
     {
+        int type = Integer.parseInt(args[0]);
+
         String folderName = "5110";
         String fileName = "5110_54320";
         ExecutorService executor= Executors
@@ -48,7 +50,7 @@ public class Dales
                         + Integer.toString(i)
                         + ".txt";
                 executor
-                        .execute(new FeatureThread(inputFileName, outputFileName, 0));
+                        .execute(new FeatureThread(inputFileName, outputFileName, 0, type));
             }
             catch (Exception ex)
             {
