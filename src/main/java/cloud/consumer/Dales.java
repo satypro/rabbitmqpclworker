@@ -13,17 +13,17 @@ import java.util.concurrent.Executors;
 
 public class Dales
 {
-    public static void main2(String[]args)
+    public static void main(String[]args)
     {
         //RemoveBoundary();
         //findMinMax();
         //PartitionTilesFeaturesIntoGrid obj = new PartitionTilesFeaturesIntoGrid();
         //obj.partitionFeatureSet("","");
-        //NormalizePoint();
-        SplitSpacev3();
+        NormalizePoint();
+        //SplitSpacev3();
     }
 
-    public static void main(String[]args)
+    public static void main2(String[]args)
     {
         String folderName = "5110";
         String fileName = "5110_54320";
@@ -179,11 +179,11 @@ public class Dales
             long startTime = System.nanoTime();
 
             File file =
-                    new File("/home/ubuntu/5110/5110_54320.txt");
+                    new File("/home/ubuntu/5110/5110_54460.txt");
             File file2 =
-                    new File("/home/ubuntu/5110/5110_54320.labels");
+                    new File("/home/ubuntu/5110/5110_54460.labels");
             FileWriter writer =
-                    new FileWriter("/home/ubuntu/5110/5110_54320_norm.txt");
+                    new FileWriter("/home/ubuntu/5110/5110_54460_norm.txt");
 
             Scanner sc = null;
             Scanner sc2 = null;
