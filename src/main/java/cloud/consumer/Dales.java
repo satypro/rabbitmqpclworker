@@ -27,8 +27,8 @@ public class Dales
     {
         int type = Integer.parseInt(args[0]);
 
-        String folderName = "5110";
-        String fileName = "5110_54320";
+        String folderName = args[0];//"5110";
+        String fileName = args[1];//"5110_54320";
         ExecutorService executor= Executors
                 .newFixedThreadPool(10);
         for (int i = 1; i <= 10; i++)
