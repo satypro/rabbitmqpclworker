@@ -1,0 +1,28 @@
+Exception in thread "DisconnectableInputStream source reader" org.gradle.api.UncheckedIOException: java.io.IOException: Bad file descriptor
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:57)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:40)
+	at org.gradle.util.DisconnectableInputStream$1.run(DisconnectableInputStream.java:125)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: java.io.IOException: Bad file descriptor
+	at java.base/java.io.FileInputStream.readBytes(Native Method)
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:279)
+	at java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:252)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:292)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:351)
+	at org.gradle.util.DisconnectableInputStream$1.run(DisconnectableInputStream.java:96)
+	... 1 more
+> Task :compileJava UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+
+> Task :dales
+/home/ubuntu/output/5110/parts/5150_54325_part1.txt
+/home/ubuntu/output/5110/parts/5150_54325_part2.txt
+/home/ubuntu/output/5110/parts/5150_54325_part3.txt
+/home/ubuntu/output/5110/parts/5150_54325_part4.txt
+/home/ubuntu/output/5110/parts/5150_54325_part5.txt
+/home/ubuntu/output/5110/parts/5150_54325_part6.txt
+/home/ubuntu/output/5110/parts/5150_54325_part7.txt
+/home/ubuntu/output/5110/parts/5150_54325_part8.txt
+/home/ubuntu/output/5110/parts/5150_54325_part9.txt
+/home/ubuntu/output/5110/parts/5150_54325_part10.txt

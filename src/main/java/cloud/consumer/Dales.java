@@ -13,22 +13,22 @@ import java.util.concurrent.Executors;
 
 public class Dales
 {
-    public static void main(String[]args)
+    public static void main2(String[]args)
     {
         //RemoveBoundary();
         //findMinMax();
         //PartitionTilesFeaturesIntoGrid obj = new PartitionTilesFeaturesIntoGrid();
         //obj.partitionFeatureSet("","");
-        NormalizePoint();
-        //SplitSpacev3();
+        //NormalizePoint();
+        SplitSpacev3();
     }
 
-    public static void main2(String[]args)
+    public static void main(String[]args)
     {
-        int type = Integer.parseInt(args[0]);
+        int type = 1;
 
-        String folderName = args[0];//"5110";
-        String fileName = args[1];//"5110_54320";
+        String folderName = "5110";
+        String fileName = "5150_54325";
         ExecutorService executor= Executors
                 .newFixedThreadPool(10);
         for (int i = 1; i <= 10; i++)
@@ -466,7 +466,7 @@ public class Dales
             // Partition Range to Search
             FileWriter [] fileWriters = new FileWriter[10];
             String folderName = "5110";
-            String fileName = "5110_54320";
+            String fileName = "5150_54325";
 
             File file =
                     new File("/home/ubuntu/"
